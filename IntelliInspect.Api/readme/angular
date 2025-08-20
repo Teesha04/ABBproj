@@ -1,0 +1,66 @@
+5) How your Angular should call it
+
+First, get dataset min/max (to set picker bounds) via your existing endpoint:
+
+GET /api/datasets/{datasetId}/metadata
+
+
+→ Use earliestSyntheticTimestamp & latestSyntheticTimestamp to set min/max on the date pickers.
+
+When the user clicks Validate Ranges, post:
+
+POST /api/datasets/{datasetId}/validate-ranges
+Content-Type: application/json
+
+{
+  "training":   { "start": "2021-01-01T00:00:00Z", "end": "2021-01-07T00:00:00Z" },
+  "testing":    { "start": "2021-01-08T00:00:00Z", "end": "2021-01-10T00:00:00Z" },
+  "simulation": { "start": "2021-01-11T00:00:00Z", "end": "2021-01-15T00:00:00Z" }
+}
+
+
+Response (success):
+
+{
+  "status": "Valid",
+  "errors": [],
+  "training":   { "name": "Training",   "start": "...", "end": "...", "days": 7, "recordCount": 604800 },
+  "testing":    { "name": "Testing",    "start": "...", "end": "...", "days": 3, "recordCount": 259200 },
+  "simulation": { "name": "Simulation", "start": "...", "end": "...", "days": 5, "recordCount": 432000 },
+  "monthly": [
+    { "month": "2021-01", "training": 600000, "testing": 250000, "simulation": 430000 },
+    { "month": "2021-02", "training": 4800, "testing": 920, "simulation": 1200 }
+  ]
+}
+
+
+Use status to toggle your green tick vs red warning.
+
+Use each RangeSummaryDto.Days for the “duration” text in the cards.
+
+Use monthly to render the bar chart with colors:
+
+Training = green
+
+Testing = orange
+
+Simulation = blue
+
+6) Quick curl test
+
+Replace <id> with the datasetId you got from the upload call:
+
+curl -X POST "http://localhost:8080/api/datasets/<id>/validate-ranges" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training":   { "start": "2021-01-01T00:00:00Z", "end": "2021-01-05T00:00:00Z" },
+    "testing":    { "start": "2021-01-06T00:00:00Z", "end": "2021-01-07T00:00:00Z" },
+    "simulation": { "start": "2021-01-08T00:00:00Z", "end": "2021-01-10T00:00:00Z" }
+  }'
+
+
+If you get "Invalid", the errors array will say exactly why (overlap, out-of-window, etc.).
+
+That’s it—this gives your Angular screen everything it needs: validation, counts per range, durations in days, and monthly buckets for the color-coded timeline chart.
+
+You said:

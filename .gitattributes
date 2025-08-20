@@ -1,0 +1,4 @@
+IntelliInspect.Api/data/**.csv filter=lfs diff=lfs merge=lfs -text
+IntelliInspect.Api/data/**/original.csv filter=lfs diff=lfs merge=lfs -text
+IntelliInspect.Api/data/**/processed.csv filter=lfs diff=lfs merge=lfs -text
+*.[cC][sS][vV] filter=lfs diff=lfs merge=lfs -text
