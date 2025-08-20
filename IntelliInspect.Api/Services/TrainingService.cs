@@ -4,7 +4,7 @@ using IntelliInspect.Api.Models;
 using IntelliInspect.Api.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting; // for IHostEnvironment
-
+using System.IO;
 namespace IntelliInspect.Api.Services;
 
 public class TrainingService : ITrainingService
@@ -38,33 +38,35 @@ public class TrainingService : ITrainingService
         var client = _http.CreateClient("ml");
 
         var datasetPath = Path.Combine(_storageRoot, req.DatasetId, "processed.csv");
-
+        var expectedCsv = Path.Combine(_storageRoot, req.DatasetId, "processed.csv");
+        if (!File.Exists(expectedCsv))
+            throw new InvalidOperationException(
+                $"CSV not found at {expectedCsv}. Re-upload via /api/datasets/upload and use the new datasetId."
+            );
 var payload = new
 {
-    dataset_id   = req.DatasetId,              // snake_case (was datasetId)
-    storage_root = _storageRoot,               // absolute, resolved earlier
-    file_name    = "processed.csv",            // FastAPI required
+    dataset_id   = req.DatasetId,
+    storage_root = _storageRoot,
+    file_name    = "processed.csv",
+    dataset_path = expectedCsv,   // optional but handy
+
     target       = req.Target ?? "Response",
     model_name   = string.IsNullOrWhiteSpace(req.Model) ? "xgboost" : req.Model,
-    train_start  = req.TrainStart,             // snake_case
+
+    train_start  = req.TrainStart,
     train_end    = req.TrainEnd,
     test_start   = req.TestStart,
     test_end     = req.TestEnd
-    // (only include dataset_path if your FastAPI model has that field)
 };
         // ✅ USE the configured path instead of hard-coding
 // _trainPath should come from config; default to "/train-model"
         using var resp = await client.PostAsJsonAsync(_trainPath, payload, ct);
         var body = await resp.Content.ReadAsStringAsync(ct);
-        var expectedCsv = Path.Combine(_storageRoot, req.DatasetId, "processed.csv");
-        if (!File.Exists(expectedCsv))
-        {
-            throw new InvalidOperationException($"CSV not found at {expectedCsv}. " +
-                "Re-upload via /api/datasets/upload and use the new datasetId.");
-        }
         if (!resp.IsSuccessStatusCode)
             throw new InvalidOperationException($"ML training failed ({(int)resp.StatusCode}): {body}");
 
+        
+        
         using var doc = JsonDocument.Parse(body);
         var root = doc.RootElement;
 

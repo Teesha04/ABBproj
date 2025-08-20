@@ -8,10 +8,10 @@ namespace IntelliInspect.Api.Controllers;
 [ApiController]
 [Route("api/ml")]
 public class TrainingController : ControllerBase
-{
+{   
     private readonly ITrainingService _training;
     private readonly IStorage _storage;
-
+    
     public TrainingController(ITrainingService training, IStorage storage)
     {
         _training = training;
