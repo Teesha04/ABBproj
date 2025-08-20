@@ -51,6 +51,15 @@ builder.Services.AddHttpClient("ml", (sp, client) =>
     var baseUrl = builder.Configuration["ML:BaseUrl"] ?? "http://localhost:8000";
     client.BaseAddress = new Uri(baseUrl);
 });
+// ML client (already present in your app, keep it)
+builder.Services.AddHttpClient("ml", client =>
+{
+    var baseUrl = builder.Configuration["ML:BaseUrl"] ?? "http://localhost:8000";
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+// Simulation service DI
+builder.Services.AddScoped<ISimulationService, SimulationService>();
 
 // (Optional) CORS for Angular dev
 builder.Services.AddCors(o => o.AddPolicy("allow-ui",

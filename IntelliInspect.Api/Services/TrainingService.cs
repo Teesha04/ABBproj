@@ -32,6 +32,9 @@ public class TrainingService : ITrainingService
     public async Task<TrainModelResponse> TrainAsync(TrainModelRequest req, CancellationToken ct)
     {
         // Ensure dataset exists where this service is looking
+        var csv = Path.Combine(_storageRoot, req.DatasetId, "processed.csv");
+        if (!File.Exists(csv))
+            throw new InvalidOperationException($"Dataset not found or not processed at {csv}.");
         if (!await _storage.FileExistsAsync(req.DatasetId, "processed.csv", ct))
             throw new InvalidOperationException("Dataset not found or not processed.");
 
@@ -47,7 +50,6 @@ var payload = new
 {
     dataset_id   = req.DatasetId,
     storage_root = _storageRoot,
-    file_name    = "processed.csv",
     dataset_path = expectedCsv,   // optional but handy
 
     target       = req.Target ?? "Response",
@@ -56,8 +58,10 @@ var payload = new
     train_start  = req.TrainStart,
     train_end    = req.TrainEnd,
     test_start   = req.TestStart,
-    test_end     = req.TestEnd
+    test_end     = req.TestEnd,
+    file_name   = $"{req.DatasetId}/processed.csv"
 };
+    await client.PostAsJsonAsync("/train-model", payload, ct);
         // ✅ USE the configured path instead of hard-coding
 // _trainPath should come from config; default to "/train-model"
         using var resp = await client.PostAsJsonAsync(_trainPath, payload, ct);

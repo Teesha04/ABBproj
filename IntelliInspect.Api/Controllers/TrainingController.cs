@@ -8,21 +8,21 @@ namespace IntelliInspect.Api.Controllers;
 [ApiController]
 [Route("api/ml")]
 public class TrainingController : ControllerBase
-{   
+{
     private readonly ITrainingService _training;
     private readonly IStorage _storage;
-    
     public TrainingController(ITrainingService training, IStorage storage)
     {
-        _training = training;
-        _storage = storage;
+        _training = training; _storage = storage;
     }
 
-    // POST /api/ml/train-model  (note the hyphen)
     [HttpPost("train-model")]
     [Consumes("application/json")]
     public async Task<ActionResult<TrainModelResponse>> TrainModel([FromBody] TrainModelRequest req, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(req.DatasetId))
+            return BadRequest(new { error = "datasetId is required" });
+
         if (!await _storage.FileExistsAsync(req.DatasetId, "processed.csv", ct))
             return NotFound(new { error = "Dataset not found or not processed." });
 
