@@ -485,11 +485,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/teeshashah/intelliinspect/IntelliInspect.Api/IntelliInspect.Api.csproj",
+      "projectUniqueName": "/Users/teeshashah/Downloads/newabb/ABBproj/IntelliInspect.Api/IntelliInspect.Api.csproj",
       "projectName": "IntelliInspect.Api",
-      "projectPath": "/Users/teeshashah/intelliinspect/IntelliInspect.Api/IntelliInspect.Api.csproj",
+      "projectPath": "/Users/teeshashah/Downloads/newabb/ABBproj/IntelliInspect.Api/IntelliInspect.Api.csproj",
       "packagesPath": "/Users/teeshashah/.nuget/packages/",
-      "outputPath": "/Users/teeshashah/intelliinspect/IntelliInspect.Api/obj/",
+      "outputPath": "/Users/teeshashah/Downloads/newabb/ABBproj/IntelliInspect.Api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/teeshashah/.nuget/NuGet/NuGet.Config"
